@@ -4,7 +4,7 @@ from enum import IntEnum
 from typing import List, Optional, Dict
 
 
-__all__ = ['Gem', 'Bundle', 'Card']
+__all__ = ['Gem', 'Bundle', 'Card', 'Noble']
 
 # The five types of gems in the game
 class Gem(IntEnum):
@@ -102,7 +102,8 @@ class Card(object):
             self.points = points
 
     def __repr__(self):
-        return f"|{self.gem.name}, Cost: {self.cost}|"
+
+        return f"|*{self.points}* {self.gem.name}, Cost: {self.cost}|"
 
     def __eq__(self, other):
         if not isinstance(other, Card):
@@ -113,6 +114,9 @@ class Card(object):
             self.cost == other.cost,
             self.points == other.points,
         ])
+
+    def __lt__(self, other):
+        return (self.tier, self.points) < (other.tier, other.points)
 
 
 class Noble(object):

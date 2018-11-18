@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Optional
 
-from core.game_pieces import Bundle, Card
+from game_pieces import Bundle, Card
 
 
 class Player(object):

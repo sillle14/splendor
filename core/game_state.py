@@ -1,9 +1,9 @@
 import random
 from typing import List, Dict
 
-from core.game_pieces import *
-from core.player import Player
-from core.static import CARDS
+from game_pieces import *
+from player import Player
+from static import CARDS
 
 
 class GameState(object):
@@ -36,6 +36,20 @@ class GameState(object):
         for _ in range(4):
             for tier in self.deck:
                 self.display.append(self.deck[tier].pop())
+        self.display.sort()
+
+    def __repr__(self):
+        representation = "~~ SPLENDOR BOARD ~~\n\n"
+        representation += f"Gems: {self.gems}\n\n"
+        representation += f"Display:\n"
+        for card in self.display:
+            representation += f"{card.tier}: {card}\n"
+        representation += "\n"
+        for player in self.players:
+            if player == self.cur_player: representation += "Current "
+            representation += f"{player}\n\n"
+        return representation
+
 
 
     def remove_card(self, player: Player, card: Card):

@@ -1,4 +1,4 @@
-from core.game_pieces import *
+from game_pieces import *
 
 CARDS = {
     'TIER_1': [
@@ -98,9 +98,9 @@ CARDS = {
     ]
 }
 
-NOBLES = [Noble(Bundle(Gem.BLACK, Gem.BLACK, Gem.BLACK, Gem.RED, Gem.RED, Gem.RED, Gem.GREEN, Gem.GREEN, Gem.GREEN)),
-          Noble(Bundle(Gem.BLACK, Gem.BLACK, Gem.BLACK, Gem.BLACK, Gem.WHITE, Gem.WHITE, Gem.WHITE, Gem.WHITE)),
-          Noble(Bundle(Gem.BLUE, Gem.BLUE, Gem.BLUE, Gem.BLUE, Gem.WHITE, Gem.WHITE, Gem.WHITE, Gem.WHITE))]
+NOBLES = [Noble(Bundle([Gem.BLACK, Gem.BLACK, Gem.BLACK, Gem.RED, Gem.RED, Gem.RED, Gem.GREEN, Gem.GREEN, Gem.GREEN])),
+          Noble(Bundle([Gem.BLACK, Gem.BLACK, Gem.BLACK, Gem.BLACK, Gem.WHITE, Gem.WHITE, Gem.WHITE, Gem.WHITE])),
+          Noble(Bundle([Gem.BLUE, Gem.BLUE, Gem.BLUE, Gem.BLUE, Gem.WHITE, Gem.WHITE, Gem.WHITE, Gem.WHITE]))]
 
 
 
