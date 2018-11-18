@@ -12,8 +12,8 @@ class Gem(IntEnum):
     GREEN = 2  # Emerald
     BLUE = 3  # Sapphire
     WHITE = 4  # Diamond
-    BROWN = 5  # Onyx
-    WILD = 6  # Gold
+    BLACK = 5  # Onyx
+    # WILD = 6  # Gold  TODO
 
 
 class Bundle(object):
