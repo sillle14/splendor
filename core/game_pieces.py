@@ -6,7 +6,7 @@ from typing import List, Optional, Dict
 
 __all__ = ['Gem', 'Bundle', 'Card']
 
-
+# The five types of gems in the game
 class Gem(IntEnum):
     RED = 1  # Ruby
     GREEN = 2  # Emerald
@@ -15,7 +15,7 @@ class Gem(IntEnum):
     BLACK = 5  # Onyx
     # WILD = 6  # Gold  TODO
 
-
+# A bundle of gems (one of the options for a turn)
 class Bundle(object):
 
     def __init__(self,
@@ -83,14 +83,17 @@ class Bundle(object):
 class Card(object):
 
     def __init__(self,
-                 tier: Optional[int]=None,
-                 gem: Optional[Gem]=None,
-                 cost: Optional[Bundle]=None,
-                 points: Optional[int]=None,
-                 card: Optional[Card]=None):
+                 tier: Optional[int]=None, # 1, 2, or 3
+                 gem: Optional[Gem]=None, # which gem it gives you forever
+                 cost: Optional[Bundle]=None, # a bundle that makes up how many gems the card costs
+                 points: Optional[int]=None, 
+                 card: Optional[Card]=None): 
         if card:
             assert all([tier is None, gem is None, cost is None, points is None])
-
+            # self.tier = card.tier @Lewis, aren't these lines necesarry???
+            # self.gem = card.gem
+            # self.cost = card.cost
+            # self.points = card.points
         else:
             assert not any([tier is None, gem is None, cost is None, points is None])
             self.tier = tier
@@ -113,5 +116,25 @@ class Card(object):
 
 
 class Noble(object):
-    # TODO
-    pass
+    def __init__(self,
+                 cost: Optional[Bundle]=None, # which cards the user must have in their tableau to gain the noble
+                 noble: Optional[Noble]=None):
+        self.points = 3 # all nobles are worth 3 points
+        if noble:
+            assert cost is None
+            self.cost = noble.cost
+        else:
+            assert noble is None
+            self.cost = cost
+
+    def __repr__(self):
+        return f"|{self.points}, Cost: {self.cost}|"
+
+    def __eq__(self, other):
+        if not isinstance(other, Noble):
+            return False
+        return all([
+            self.cost == other.cost,
+            self.points == other.points,
+        ])
+

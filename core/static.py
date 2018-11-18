@@ -97,3 +97,14 @@ CARDS = {
         Card(3, Gem.BLACK, Bundle([Gem.WHITE, Gem.WHITE, Gem.WHITE, Gem.BLUE, Gem.BLUE, Gem.BLUE, Gem.GREEN, Gem.GREEN, Gem.GREEN, Gem.GREEN, Gem.GREEN, Gem.RED, Gem.RED, Gem.RED]), 3),
     ]
 }
+
+NOBLES = [Noble(Bundle(Gem.BLACK, Gem.BLACK, Gem.BLACK, Gem.RED, Gem.RED, Gem.RED, Gem.GREEN, Gem.GREEN, Gem.GREEN)),
+          Noble(Bundle(Gem.BLACK, Gem.BLACK, Gem.BLACK, Gem.BLACK, Gem.WHITE, Gem.WHITE, Gem.WHITE, Gem.WHITE)),
+          Noble(Bundle(Gem.BLUE, Gem.BLUE, Gem.BLUE, Gem.BLUE, Gem.WHITE, Gem.WHITE, Gem.WHITE, Gem.WHITE))]
+
+
+
+
+
+
+
