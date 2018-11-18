@@ -111,3 +111,7 @@ class Card(object):
             self.points == other.points,
         ])
 
+
+class Noble(object):
+    # TODO
+    pass
