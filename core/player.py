@@ -42,6 +42,6 @@ class Player(object):
             else:
                 spent_gems.add_multiple(gem, real_cost)
         self.add_card(card)
-        self.gems.subtract_bundle(real_cost)
+        self.gems.subtract_bundle(spent_gems)
 
 

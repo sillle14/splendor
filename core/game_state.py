@@ -50,20 +50,22 @@ class GameState(object):
             representation += f"{player}\n\n"
         return representation
 
+    def buy_card(self, player: Player, card: Card):
+        self.remove_card(card)
+        player.buy_card(card)
+        self.gems.add_bundle(card.cost)
 
-
-    def remove_card(self, player: Player, card: Card):
+    def remove_card(self, card: Card):
         if (card not in self.display):
             raise ValueError("Card not in display")
         self.display.remove(card)
         tier = card.tier
         self.display.append(self.deck[tier].pop())
 
-    def remove_gems(self, gems: Bundle):
+    def draw_gems(self, player: Player, gems: Bundle):
         self.gems.subtract_bundle(gems)
+        player.draw_gems(gems)
 
-    def add_gems(self, gems: Bundle):
-        self.gems.add_bundle(gems)
 
     def get_display(self):
         return self.display
@@ -78,6 +80,17 @@ class GameState(object):
         self.cur_player_idx = (self.cur_player_idx + 1) % len(self.players)
         self.cur_player = self.players[self.cur_player_idx]
 
+    def is_game_over(self):
+        for player in self.players:
+            if player.score >= 15:
+                return True
+        return False
+
+    def get_winner(self):
+        for player in self.players:
+            if player.score >= 15:
+                return player
+        return None
 
 
 
