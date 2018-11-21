@@ -74,7 +74,7 @@ class GameState(object):
                 for gem_3 in [gem for gem in Gem if (gem > gem_2)]:
                     gems = Bundle(gem_list=[gem_1, gem_2, gem_3])
                     try:
-                        new_state = deepcopy(self)
+                        new_state = deepcopy(self)  # TODO: We should implement our own copy method which copies the correct things
                         new_state.draw_gems(gems)
                         states.append(new_state)
                         moves['take'].append(gems)
