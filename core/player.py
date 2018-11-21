@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Optional
 
-from game_pieces import Bundle, Card
+from core.game_pieces import Bundle, Card
 
 
 class Player(object):
@@ -13,6 +13,7 @@ class Player(object):
             self.name = name
             self.gems = Bundle()
             self.tableau = Bundle()
+            self.tableau_cards = []  # type: List[Card]
             # self.reserves = []  # type: List[Card]  TODO
             self.points = 0
         else:
@@ -20,6 +21,7 @@ class Player(object):
             self.name = player.name
             self.gems = player.gems
             self.tableau = player.tableau
+            self.tableau_cards = []  # type: List[Card]
             # self.reserves = player.reserves  TODO
             self.points = player.points
 
@@ -32,8 +34,10 @@ class Player(object):
     def add_card(self, card: Card):
         self.points += card.points
         self.tableau.add(card.gem)
+        self.tableau_cards.append(card)
 
     def buy_card(self, card: Card):
+        """Buys a card for the player. Returns the gems spent."""
         spent_gems = Bundle()
         for gem, count in card.cost.gems.items():
             real_cost = count - self.tableau.amount(gem)
@@ -43,5 +47,4 @@ class Player(object):
                 spent_gems.add_multiple(gem, real_cost)
         self.add_card(card)
         self.gems.subtract_bundle(spent_gems)
-
-
+        return spent_gems

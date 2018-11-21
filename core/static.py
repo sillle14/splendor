@@ -1,4 +1,4 @@
-from game_pieces import *
+from core.game_pieces import *
 
 CARDS = {
     'TIER_1': [

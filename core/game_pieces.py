@@ -6,6 +6,7 @@ from typing import List, Optional, Dict
 
 __all__ = ['Gem', 'Bundle', 'Card', 'Noble']
 
+
 # The five types of gems in the game
 class Gem(IntEnum):
     RED = 1  # Ruby
@@ -14,6 +15,7 @@ class Gem(IntEnum):
     WHITE = 4  # Diamond
     BLACK = 5  # Onyx
     # WILD = 6  # Gold  TODO
+
 
 # A bundle of gems (one of the options for a turn)
 class Bundle(object):
@@ -64,6 +66,9 @@ class Bundle(object):
     def amount(self, gem: Gem):
         return self.gems.get(gem, 0)
 
+    def distinct_gems(self):
+        return [gem for gem in self.gems if self.amount(gem) > 0]
+
     def subtract(self, gem: Gem):
         self.subtract_multiple(gem, 1)
 
@@ -79,21 +84,27 @@ class Bundle(object):
         else:
             self.gems[gem] -= count
 
+    def total(self):
+        total = 0
+        for _, count in self.gems.items():
+            total += count
+        return total
+
 
 class Card(object):
 
     def __init__(self,
-                 tier: Optional[int]=None, # 1, 2, or 3
-                 gem: Optional[Gem]=None, # which gem it gives you forever
-                 cost: Optional[Bundle]=None, # a bundle that makes up how many gems the card costs
+                 tier: Optional[int]=None,  # 1, 2, or 3
+                 gem: Optional[Gem]=None,  # which gem it gives you forever
+                 cost: Optional[Bundle]=None,  # a bundle that makes up how many gems the card costs
                  points: Optional[int]=None, 
                  card: Optional[Card]=None): 
         if card:
             assert all([tier is None, gem is None, cost is None, points is None])
-            # self.tier = card.tier @Lewis, aren't these lines necesarry???
-            # self.gem = card.gem
-            # self.cost = card.cost
-            # self.points = card.points
+            self.tier = card.tier
+            self.gem = card.gem
+            self.cost = card.cost
+            self.points = card.points
         else:
             assert not any([tier is None, gem is None, cost is None, points is None])
             self.tier = tier
@@ -121,9 +132,9 @@ class Card(object):
 
 class Noble(object):
     def __init__(self,
-                 cost: Optional[Bundle]=None, # which cards the user must have in their tableau to gain the noble
+                 cost: Optional[Bundle]=None,  # which cards the user must have in their tableau to gain the noble
                  noble: Optional[Noble]=None):
-        self.points = 3 # all nobles are worth 3 points
+        self.points = 3  # all nobles are worth 3 points
         if noble:
             assert cost is None
             self.cost = noble.cost
@@ -141,4 +152,3 @@ class Noble(object):
             self.cost == other.cost,
             self.points == other.points,
         ])
-
