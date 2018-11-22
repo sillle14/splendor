@@ -19,11 +19,13 @@ class GameState(object):
     def __init__(self, player_names: List[str]):
         # Add players.
         assert len(player_names) <= 2
+        self.turns = 0
         self.player_names = player_names
         self.players = [Player(name) for name in player_names]
 
         self.cur_player_idx = 0
         self.cur_player = self.players[self.cur_player_idx]
+        self.cur_player.my_turn = True
 
         # Add gems.
         self.gems = Bundle()
@@ -101,6 +103,11 @@ class GameState(object):
                 moves['buy'].append(card)
             except InvalidMoveError:
                 pass
+        
+        # Add a pass in case no moves are possible
+        new_state = deepcopy(self)
+        new_state.pass_turn()
+        states.append(new_state)
 
         return states, moves
 
@@ -159,6 +166,9 @@ class GameState(object):
             raise InvalidMoveError("Can't take these gems as there are not enough left in the supply.")
         player.draw_gems(gems)
         self.next_player()
+    
+    def pass_turn(self):
+        self.next_player()
 
     # =============
     #    HELPERS
@@ -169,10 +179,15 @@ class GameState(object):
             raise ValueError("Card not in display")
         self.display.remove(card)
         self.display.append(self.deck[f"TIER_{card.tier}"].pop())
+        self.display.sort()
 
     def next_player(self):
+        self.cur_player.my_turn = False
         self.cur_player_idx = (self.cur_player_idx + 1) % len(self.players)
         self.cur_player = self.players[self.cur_player_idx]
+        self.cur_player.my_turn = True
+        if (self.cur_player_idx == 0):
+            self.turns += 1
 
     def is_game_over(self):
         for player in self.players:

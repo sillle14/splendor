@@ -16,6 +16,7 @@ class Player(object):
             self.tableau_cards = []  # type: List[Card]
             # self.reserves = []  # type: List[Card]  TODO
             self.points = 0
+            self.my_turn = False
         else:
             assert player
             self.name = player.name
@@ -24,6 +25,7 @@ class Player(object):
             self.tableau_cards = []  # type: List[Card]
             # self.reserves = player.reserves  TODO
             self.points = player.points
+            self.my_turn = player.my_turn
 
     def __repr__(self):
         return f"Player {self.name}\nPoints: {self.points}\nTableau: {self.tableau}\nGems: {self.gems}"
@@ -40,7 +42,7 @@ class Player(object):
         """Buys a card for the player. Returns the gems spent."""
         spent_gems = Bundle()
         for gem, count in card.cost.gems.items():
-            real_cost = count - self.tableau.amount(gem)
+            real_cost = max(count - self.tableau.amount(gem),0)
             if self.gems.amount(gem) < real_cost:
                 raise ValueError('Not enough gems to buy this card')
             else:

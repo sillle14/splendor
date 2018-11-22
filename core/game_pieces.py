@@ -9,12 +9,12 @@ __all__ = ['Gem', 'Bundle', 'Card', 'Noble']
 
 # The five types of gems in the game
 class Gem(IntEnum):
-    RED = 1  # Ruby
-    GREEN = 2  # Emerald
-    BLUE = 3  # Sapphire
-    WHITE = 4  # Diamond
-    BLACK = 5  # Onyx
-    # WILD = 6  # Gold  TODO
+    RED = 1  # Ruby #e0115f
+    GREEN = 2  # Emerald #50c878
+    BLUE = 3  # Sapphire #0f52ba
+    WHITE = 4  # Diamond #b9f2ff
+    BLACK = 5  # Onyx #696969
+    # WILD = 6  # Gold #daa520 TODO
 
 
 # A bundle of gems (one of the options for a turn)
@@ -59,7 +59,7 @@ class Bundle(object):
             self.add_multiple(gem, count)
 
     def add_multiple(self, gem: Gem, count: int):
-        assert count > 0
+        assert count >= 0
         self.gems[gem] = self.gems.get(gem, 0)
         self.gems[gem] += count
 
@@ -77,7 +77,7 @@ class Bundle(object):
             self.subtract_multiple(gem, count)
 
     def subtract_multiple(self, gem: Gem, count: int):
-        assert count > 0
+        assert count >= 0
         current_count = self.gems.get(gem, 0)
         if current_count < count:
             raise ValueError('Not enough gems to subtract.')
