@@ -90,6 +90,10 @@ class Bundle(object):
             total += count
         return total
 
+    def to_list(self):
+        """Returns a list of integers representing this bundle to be used by the NN."""
+        return [self.amount(gem) for gem in Gem]
+
 
 class Card(object):
 
@@ -128,6 +132,10 @@ class Card(object):
 
     def __lt__(self, other):
         return (self.tier, self.points) < (other.tier, other.points)
+
+    def to_list(self):
+        """Returns a list of integers representing this card to be read by the NN."""
+        return self.cost.to_list() + [self.points] + [self.gem.value]
 
 
 class Noble(object):

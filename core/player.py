@@ -50,3 +50,7 @@ class Player(object):
         self.add_card(card)
         self.gems.subtract_bundle(spent_gems)
         return spent_gems
+
+    def to_list(self):
+        """Returns a list of integers to be read by the NN."""
+        return self.tableau.to_list() + self.gems.to_list() + [self.points]

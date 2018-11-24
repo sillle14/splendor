@@ -2,6 +2,8 @@ import random
 from copy import deepcopy
 from typing import List, Dict
 
+import numpy as np
+
 from core.game_pieces import *
 from core.player import Player
 from core.static import CARDS
@@ -16,34 +18,35 @@ class InvalidMoveError(Exception):
 
 class GameState(object):
 
-    def __init__(self, player_names: List[str]):
-        # Add players.
-        assert len(player_names) <= 2
-        self.turns = 0
-        self.player_names = player_names
-        self.players = [Player(name) for name in player_names]
+    def __init__(self, player_names: List[str]=None):
+        if player_names:
+            # Add players.
+            assert len(player_names) <= 2
+            self.turns = 0
+            self.player_names = player_names
+            self.players = [Player(name) for name in player_names]
 
-        self.cur_player_idx = 0
-        self.cur_player = self.players[self.cur_player_idx]
-        self.cur_player.my_turn = True
+            self.cur_player_idx = 0
+            self.cur_player = self.players[self.cur_player_idx]
+            self.cur_player.my_turn = True
 
-        # Add gems.
-        self.gems = Bundle()
-        for gem in Gem:
-            self.gems.add_multiple(gem, GEM_COUNT)
+            # Add gems.
+            self.gems = Bundle()
+            for gem in Gem:
+                self.gems.add_multiple(gem, GEM_COUNT)
 
-        # Add cards.
-        self.deck = {}  # type: Dict[str, List[Card]]
-        for tier, cards in CARDS.items():
-            self.deck[tier] = cards
-            random.shuffle(self.deck[tier])
+            # Add cards.
+            self.deck = {}  # type: Dict[str, List[Card]]
+            for tier, cards in CARDS.items():
+                self.deck[tier] = cards
+                random.shuffle(self.deck[tier])
 
-        # Display cards.
-        self.display = []  # type: List[Card]
-        for _ in range(4):
-            for tier in self.deck:
-                self.display.append(self.deck[tier].pop())
-        self.display.sort()
+            # Display cards.
+            self.display = []  # type: List[Card]
+            for _ in range(4):
+                for tier in self.deck:
+                    self.display.append(self.deck[tier].pop())
+            self.display.sort()
 
     def __repr__(self):
         representation = "~~ SPLENDOR BOARD ~~\n\n"
@@ -56,7 +59,32 @@ class GameState(object):
             if player == self.cur_player:
                 representation += "Current "
             representation += f"{player}\n\n"
+        representation += str(self.to_array())
         return representation
+
+    def copy(self):
+        """Copies the GameState in a safe way without duplicating everything."""
+        new_state = GameState()
+
+        # Copy players.
+        new_state.players = deepcopy(self.players)  # Deep copy the player list because making a move changes players
+        new_state.turns = self.turns
+        new_state.cur_player_idx = self.cur_player_idx
+        new_state.cur_player = new_state.players[new_state.cur_player_idx]
+        new_state.cur_player.my_turn = True
+
+        # Copy gems.
+        new_state.gems = Bundle(gem_list=None, bundle=self.gems)
+
+        # Copy the cards. Here we want a new dictionary, with new lists in it, but the same cards in those lists. So, we
+        #  want to shallow copy the lists.
+        new_state.deck = {'TIER_1': list(self.deck['TIER_1']),
+                          'TIER_2': list(self.deck['TIER_2']),
+                          'TIER_3': list(self.deck['TIER_3'])}
+
+        new_state.display = list(self.display)  # Also shallow copy this list
+
+        return new_state
 
     def get_possible_moves(self):
         """
@@ -68,7 +96,7 @@ class GameState(object):
                                 'take': [list of bundles that can be taken]}
         """
         states = []  # type: List[GameState]
-        moves = {'buy': [], 'take': []}
+        moves = {'buy': [], 'take': [], 'pass': False}
 
         # Find all possible 3 gem draws.
         for gem_1 in Gem:
@@ -76,7 +104,7 @@ class GameState(object):
                 for gem_3 in [gem for gem in Gem if (gem > gem_2)]:
                     gems = Bundle(gem_list=[gem_1, gem_2, gem_3])
                     try:
-                        new_state = deepcopy(self)  # TODO: We should implement our own copy method which copies the correct things
+                        new_state = self.copy()
                         new_state.draw_gems(gems)
                         states.append(new_state)
                         moves['take'].append(gems)
@@ -87,7 +115,7 @@ class GameState(object):
         for gem in Gem:
             gems = Bundle(gem_list=[gem, gem])
             try:
-                new_state = deepcopy(self)
+                new_state = self.copy()
                 new_state.draw_gems(gems)
                 states.append(new_state)
                 moves['take'].append(gems)
@@ -97,23 +125,38 @@ class GameState(object):
         # Find all possible cards to buy.
         for card in self.display:
             try:
-                new_state = deepcopy(self)
+                new_state = self.copy()
                 new_state.buy_card(card)
                 states.append(new_state)
                 moves['buy'].append(card)
             except InvalidMoveError:
                 pass
         
-        # Add a pass in case no moves are possible
-        new_state = deepcopy(self)
-        new_state.pass_turn()
-        states.append(new_state)
+        # Add a pass only in the case no moves are possible. TODO: it will get stuck here, we need to change this.
+        if len(states) == 0:
+            new_state = self.copy()
+            new_state.pass_turn()
+            states.append(new_state)
+            moves['pass'] = True
 
         return states, moves
 
     def to_array(self):
-        """Converts the gamestate into an array which can be read by the NN."""
-        pass
+        """Converts the GameState into an array which can be read by the NN."""
+        # Nodes for the GameState gems:
+        game_state_gems = self.gems.to_list()
+
+        # Nodes for the GameState display cards:
+        game_state_cards = [card.to_list() for card in self.display]  # List of lists
+        # Flatten.
+        game_state_cards = [item for sublist in game_state_cards for item in sublist]
+
+        # Nodes for each player:
+        players = [player.to_list() for player in self.players]  # List of lists
+        # Flatten.
+        players = [item for sublist in players for item in sublist]
+
+        return np.array(game_state_gems + game_state_cards + players)
 
     # ===========
     #    MOVES
