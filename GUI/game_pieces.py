@@ -16,7 +16,8 @@ def draw_card(canvas, card, x, y):
                            text=str(card.cost.amount(gem)))
         # Gem gained
         # Points gained
-        canvas.create_text(x + w/6, y + w/6, text=card.points, font="Arial 20 bold")
+        canvas.create_text(x + w/6, y + w/6, text=card.points,
+                           font="Arial 20 bold")
 
 
 def draw_gem(canvas, gem, x, y):
@@ -28,14 +29,17 @@ def draw_player(canvas, player, x, y):
     w = 400
     h = 200
     m = 5
-    canvas.create_rectangle(x+m, y+m, x + w-m, y + h-m, fill="brown")
+    canvas.create_rectangle(x+m, y+m, x + w-m, y + h-m, fill="salmon1")
     # name
     if player.my_turn:
-        canvas.create_text(x + 15, y + 15, text="**"+player.name+"**", anchor="nw", font="Arial 30 bold")
+        canvas.create_text(x + 15, y + 15, text="**"+player.name+"**",
+                           anchor="nw", font="Arial 30 bold")
     else:
-        canvas.create_text(x + 15, y + 15, text=player.name, anchor="nw", font="Arial 30 bold")
+        canvas.create_text(x + 15, y + 15, text=player.name,
+                           anchor="nw", font="Arial 30 bold")
     # points
-    canvas.create_text(x + w - 15, y + 15, text=str(player.points), anchor="ne", font="Arial 30 bold")
+    canvas.create_text(x + w - 15, y + 15, text=str(player.points), 
+                       anchor="ne", font="Arial 30 bold")
     # gems
     for (i, gem) in enumerate(Gem):
         for j in range(player.gems.amount(gem)):
