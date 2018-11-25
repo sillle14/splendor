@@ -81,7 +81,7 @@ class Bundle(object):
         current_count = self.gems.get(gem, 0)
         if current_count < count:
             raise ValueError('Not enough gems to subtract.')
-        else:
+        elif count != 0:
             self.gems[gem] -= count
 
     def total(self):

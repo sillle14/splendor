@@ -9,7 +9,7 @@ from core.player import Player
 from core.static import CARDS
 
 GEM_COUNT = 4
-MAX_GEM_HAND_SIZE = 10
+MAX_GEM_HAND_SIZE = 20
 
 
 class InvalidMoveError(Exception):
@@ -37,10 +37,9 @@ class GameState(object):
 
             # Add cards.
             self.deck = {}  # type: Dict[str, List[Card]]
-            for tier, cards in CARDS.items():
+            for tier, cards in deepcopy(CARDS).items():
                 self.deck[tier] = cards
                 random.shuffle(self.deck[tier])
-
             # Display cards.
             self.display = []  # type: List[Card]
             for _ in range(4):
@@ -103,6 +102,10 @@ class GameState(object):
             for gem_2 in [gem for gem in Gem if (gem > gem_1)]:
                 for gem_3 in [gem for gem in Gem if (gem > gem_2)]:
                     gems = Bundle(gem_list=[gem_1, gem_2, gem_3])
+                    if self.cur_player.gems.total() >= 8:
+                        gems.subtract(gem_2)
+                    if self.cur_player.gems.total() >= 9:
+                        gems.subtract(gem_3)
                     try:
                         new_state = self.copy()
                         new_state.draw_gems(gems)
@@ -110,6 +113,7 @@ class GameState(object):
                         moves['take'].append(gems)
                     except InvalidMoveError:
                         pass
+
 
         # Find all possible 2 gem draws.
         for gem in Gem:
@@ -191,15 +195,13 @@ class GameState(object):
         # Check that it is allowed to take the given gems.
         if player.gems.total() + gems.total() > MAX_GEM_HAND_SIZE:
             raise InvalidMoveError('These gems will violate the handsize limit.')
-        if gems.total() == 2:
-            if len(gems.distinct_gems()) != 1:
-                raise InvalidMoveError("Can't 2 gems of different colors.")
+        if gems.total() == 2 and len(gems.distinct_gems()) == 2:
             if self.gems.amount(gems.distinct_gems()[0]) < 4:
                 raise InvalidMoveError("Can't take 2 gems when there are less than 4 left in the supply.")
         elif gems.total() == 3:
             if len(gems.distinct_gems()) != 3:
                 raise InvalidMoveError("Can't take three gems unless they are all different.")
-        else:
+        elif gems.total() > 3:
             raise InvalidMoveError(f"Can't take a total of {gems.total()} gems.")
 
         # If we get to here, the move is valid, unless there are not enough gems in the supply.
@@ -221,7 +223,10 @@ class GameState(object):
         if card not in self.display:
             raise ValueError("Card not in display")
         self.display.remove(card)
-        self.display.append(self.deck[f"TIER_{card.tier}"].pop())
+        try:
+            self.display.append(self.deck[f"TIER_{card.tier}"].pop())
+        except:
+            print(f"Ran out of cards in Tier{card.tier}")
         self.display.sort()
 
     def next_player(self):
@@ -241,3 +246,10 @@ class GameState(object):
     def get_winner(self):
         if self.is_game_over():
             return self.players.sort(key=lambda x: x.points, reverse=True)[0]
+
+    def get_reward(self):
+        if self.is_game_over():
+            return 100
+            # if self.get_winner() == self.cur_player:
+            #     return 100
+        return 0
