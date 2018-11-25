@@ -36,9 +36,8 @@ class Controller(object):
         h = 200
         for i in range(3):
             for j in range(4):
-                if (0 < (x - (100 + j * 135)) < w and
-                    0 < (y - (100 + (2 - i) * 210)) < h):
-                    return (i, j)
+                if 0 < (x - (100 + j * 135)) < w and 0 < (y - (100 + (2 - i) * 210)) < h:
+                    return i, j
         return None
 
     def add_card(self, card):
@@ -86,4 +85,3 @@ class Controller(object):
         
         canvas.create_text(1050, 750, anchor="ne", text=self.exception_text, 
                            font="Arial 20 bold", fill="red")
-        
