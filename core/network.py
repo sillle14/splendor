@@ -24,35 +24,36 @@ class Weights(object):
         np.random.seed(1)
 
         self.W1 = 2 * np.random.random((self.hidden_node_count, self.input_node_count)) - 1
-        self.bias_1 = 2 * np.random.random((self.hidden_node_count)) - 1
+        self.bias_1 = 2 * np.random.random((self.hidden_node_count, 1)) - 1
 
-        self.W2 = 2 * np.random.random((1, self.hidden_node_count)) - 1
-        self.bias_2 = 2 * np.random.random((1)) - 1
+        self.W2 = 2 * np.random.random((1, self.hidden_node_count, 1)) - 1
+        self.bias_2 = 2 * np.random.random((1, 1)) - 1
 
 
 class Network(object):
 
-    def __init__(self, newWeights=False):
-        if newWeights:
+    def __init__(self, new_weights=False):
+        if new_weights:
             self.weights = Weights()
-            self.saveWeights()
+            self.save_weights()
         else:
-            self.weights = self.loadWeights()
+            self.weights = self.load_weights()
         self.alpha = 0.5
         self.lambda_ = 0.7
         self.e_t_previous = 0  # TODO this is actually a vector of 0s for each param
 
-    def saveWeights(self):
+    def save_weights(self):
         with open("weights.pickle", "wb") as f:
             pickle.dump(self.weights, f)
 
-    def loadWeights(self):
+    @staticmethod
+    def load_weights():
         with open("weights.pickle", "rb") as f:
             return pickle.load(f)
 
     def feed_forward(self, input_array: np.array):
         # TODO: fix bug with running out of cards
-        if (input_array.size < 100):
+        if input_array.size < 100:
             return 0
         layer_1 = sigmoid(np.dot(self.weights.W1, input_array) + self.weights.bias_1)
         output = sigmoid(np.dot(self.weights.W2, layer_1) + self.weights.bias_2)
@@ -84,10 +85,10 @@ class Network(object):
         while not game_state.is_game_over():
             # First, we need to calculate the outcome of the next game state.
             possible_next_states, possible_next_moves = game_state.get_possible_moves()
-            current_score = self.feed_forward(game_state.to_array())
-            next_scores = [self.feed_forward(state.to_array()) for state in possible_next_states]
+            current_score = self.feed_forward(game_state.to_array().T)
+            next_scores = [self.feed_forward(state.to_array().T) for state in possible_next_states]
             # This is assuming there is just one player so if the game is over then they have won.
-            next_score = max(next_scores) if (not game_state.is_game_over()) else 1
+            next_score = max(next_scores) if (game_state.has_player_won() is not None) else game_state.has_player_won()
             # get arg_max of best next state and choose it
             best_score_idx = np.argmax(next_scores)
             next_state = possible_next_states[best_score_idx].copy()
@@ -98,7 +99,7 @@ class Network(object):
                 print("next move: " + possible_next_moves[best_score_idx])
         end_time = time.time()
         print(f'Game {game_id} ended! Turns: {game_state.turns}, Time: {end_time-start_time}s')
-        self.saveWeights()
+        self.save_weights()
 
     def run_epoch(self, length, debug=False):
         for i in range(length):

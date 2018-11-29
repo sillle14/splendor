@@ -226,7 +226,7 @@ class GameState(object):
         self.display.remove(card)
         try:
             self.display.append(self.deck[f"TIER_{card.tier}"].pop())
-        except:
+        except IndexError:
             print(f"Ran out of cards to draw in Tier{card.tier}")
         self.display.sort()
 
@@ -239,28 +239,30 @@ class GameState(object):
             self.turns += 1
 
     def is_game_over(self):
-        """Checks for player score, cards in deck, and number of turns"""
+        """Checks for player score, cards in deck, and number of turns."""
         for player in self.players:
             if player.points >= 15 and self.cur_player_idx == 0:
                 return True
-        # if cards ran out in a pile
-        if (len(self.display) < 12):
+        # If cards ran out in a pile, we call the game over for now. TODO
+        if len(self.display) < 12:
             return True
-        # took too long
-        if (self.turns > 100):
+        # If the game takes too long, we call it over.
+        if self.turns > 100:
             return True
         return False
 
     def has_player_won(self):
-        """Checks if game ended due to player winning, or error"""
-        if (len(self.display) < 12):
-            return False
-        if (self.turns > 100):
-            return False
-        return True
+        """Checks if the player has won in the one player case."""
+        if self.is_game_over():
+            if len(self.display) < 12:
+                return 0
+            if self.turns > 100:
+                return 0
+            return 1
+        return None
 
     def get_winner(self):
-        if self.is_game_over():
+        if self.is_game_over() and self.has_player_won():
             return self.players.sort(key=lambda x: x.points, reverse=True)[0]
 
     def get_reward(self):

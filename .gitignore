@@ -1,11 +1,9 @@
 # Created by .ignore support plugin (hsz.mobi)
 .idea/
-.gitignore
 .python-version
 .vscode
 .core/__pycache__
 .GUI/__pycache__
-.__pycache__
 network.py
 networkTD.py
 .DS_Store
