@@ -227,7 +227,7 @@ class GameState(object):
         try:
             self.display.append(self.deck[f"TIER_{card.tier}"].pop())
         except:
-            print(f"Ran out of cards in Tier{card.tier}")
+            print(f"Ran out of cards to draw in Tier{card.tier}")
         self.display.sort()
 
     def next_player(self):
@@ -239,10 +239,25 @@ class GameState(object):
             self.turns += 1
 
     def is_game_over(self):
+        """Checks for player score, cards in deck, and number of turns"""
         for player in self.players:
             if player.points >= 15 and self.cur_player_idx == 0:
                 return True
+        # if cards ran out in a pile
+        if (len(self.display) < 12):
+            return True
+        # took too long
+        if (self.turns > 100):
+            return True
         return False
+
+    def has_player_won(self):
+        """Checks if game ended due to player winning, or error"""
+        if (len(self.display) < 12):
+            return False
+        if (self.turns > 100):
+            return False
+        return True
 
     def get_winner(self):
         if self.is_game_over():

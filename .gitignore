@@ -1,5 +1,6 @@
 # Created by .ignore support plugin (hsz.mobi)
 .idea/
+.gitignore
 .python-version
 .vscode
 .core/__pycache__
