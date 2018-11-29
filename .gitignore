@@ -7,3 +7,7 @@
 .__pycache__
 network.py
 networkTD.py
+.DS_Store
+core/.DS_Store
+GUI/.DS_Store
+.__pycache__

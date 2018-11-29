@@ -58,7 +58,7 @@ class GameState(object):
             if player == self.cur_player:
                 representation += "Current "
             representation += f"{player}\n\n"
-        representation += str(self.to_array())
+        representation += str(len(self.to_array()))
         return representation
 
     def copy(self):
@@ -146,7 +146,7 @@ class GameState(object):
         return states, moves
 
     def to_array(self):
-        """Converts the GameState into an array which can be read by the NN."""
+        """Converts the GameState into an array which can be read by the NN. (111 Nodes)"""
         # Nodes for the GameState gems:
         game_state_gems = self.gems.to_list()
 
@@ -219,6 +219,7 @@ class GameState(object):
     #    HELPERS
     # =============
 
+    # TODO: handle empty decks.
     def remove_card(self, card: Card):
         if card not in self.display:
             raise ValueError("Card not in display")
@@ -234,7 +235,7 @@ class GameState(object):
         self.cur_player_idx = (self.cur_player_idx + 1) % len(self.players)
         self.cur_player = self.players[self.cur_player_idx]
         self.cur_player.my_turn = True
-        if (self.cur_player_idx == 0):
+        if self.cur_player_idx == 0:
             self.turns += 1
 
     def is_game_over(self):

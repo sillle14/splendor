@@ -30,16 +30,16 @@ def mouse_pressed(event, data):
 
     # clicked on gems
     gem = data.controller.get_gem(event.x, event.y)
-    if (gem is not None):
+    if gem is not None:
         data.controller.add_gem(gem)
     
     # clicked on cards
     card = data.controller.get_card(event.x, event.y)
-    if (card is not None):
+    if card is not None:
         data.controller.add_card(card)
     
     # confirm
-    if (data.controller.confirmed(event.x, event.y)):
+    if data.controller.confirmed(event.x, event.y):
         data.controller.take_turn(data.game)  # modifies data.game
 
 
