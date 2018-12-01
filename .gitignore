@@ -1,6 +1,5 @@
 # Created by .ignore support plugin (hsz.mobi)
 .idea/
-.gitignore
 .python-version
 .vscode
 .core/__pycache__
@@ -12,3 +11,6 @@ networkTD.py
 core/.DS_Store
 GUI/.DS_Store
 .__pycache__
+GUI/__pycache__/GUI.cpython-37.pyc
+GUI/__pycache__/controller.cpython-37.pyc
+core/__pycache__/game_state.cpython-37.pyc

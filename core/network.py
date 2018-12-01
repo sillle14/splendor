@@ -6,6 +6,19 @@ import numpy as np
 
 from core.game_state import GameState
 
+def timeit(method):
+    def timed(*args, **kw):
+        ts = time.time()
+        result = method(*args, **kw)
+        te = time.time()
+        if 'log_time' in kw:
+            name = kw.get('log_name', method.__name__.upper())
+            kw['log_time'][name] = int((te - ts) * 1000)
+        else:
+            print('%r  %2.2f ms' % \
+                  (method.__name__, (te - ts) * 1000))
+        return result
+    return timed
 
 def sigmoid(x):
     return 1 / (1 + np.exp(-x))
@@ -59,7 +72,7 @@ class Network(object):
 
         # Return the score of the move.
         return output[0]
-
+    
     def back_propagate(self, current_score: int, next_score: int):
         
         delta_t = next_score - current_score
@@ -78,7 +91,8 @@ class Network(object):
 
         self.weights.W1 = self.weights.W1 + self.alpha * delta_t * e_t
         self.weights.W2 = self.weights.W2 + self.alpha * delta_t * e_t
-
+        
+    @timeit
     def run_game(self, game_state: GameState, game_id, debug=False):
         start_time = time.time()
         while not game_state.is_game_over():
@@ -97,7 +111,7 @@ class Network(object):
             if debug:
                 print("next move: " + possible_next_moves[best_score_idx])
         end_time = time.time()
-        print(f'Game {game_id} ended! Turns: {game_state.turns}, Time: {end_time-start_time}s')
+        print(f'Game {game_id} ended! Turns: {game_state.turns}')
         self.saveWeights()
 
     def run_epoch(self, length, debug=False):

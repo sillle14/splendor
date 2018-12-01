@@ -6,5 +6,5 @@ n = Network()
 
 g1 = GameState(["Michael"])
 
-n.run_epoch(50)
+n.run_epoch(500000)
 
