@@ -6,20 +6,6 @@ from tqdm import trange
 
 from core.game_state import GameState
 
-def timeit(method):
-    def timed(*args, **kw):
-        ts = time.time()
-        result = method(*args, **kw)
-        te = time.time()
-        if 'log_time' in kw:
-            name = kw.get('log_name', method.__name__.upper())
-            kw['log_time'][name] = int((te - ts) * 1000)
-        else:
-            print('%r  %2.2f ms' % \
-                  (method.__name__, (te - ts) * 1000))
-        return result
-    return timed
-
 def sigmoid(x):
     # To avoid overflow.
     if x < -100:
@@ -119,19 +105,12 @@ class Network(object):
 
         delta_t = next_score - current_score
 
-<<<<<<< HEAD
-        self.weights.W1 = self.weights.W1 + self.alpha * delta_t * e_t
-        self.weights.W2 = self.weights.W2 + self.alpha * delta_t * e_t
-        
-    @timeit
-=======
         # Update weights.
         self.weights.bias_2 = self.weights.bias_2 + self.alpha * delta_t * e_t_b2
         self.weights.W2 = self.weights.W2 + self.alpha * delta_t * e_t_W2
         self.weights.bias_1 = self.weights.bias_1 + self.alpha * delta_t * e_t_b1
         self.weights.W1 = self.weights.W1 + self.alpha * delta_t * e_t_W1
 
->>>>>>> de62198b2953e72bc2e22cdc1c694743fcd4ff14
     def run_game(self, game_state: GameState, game_id, debug=False):
         start_time = time.time()
         while not game_state.is_game_over():
@@ -149,21 +128,23 @@ class Network(object):
             if debug:
                 print(f"moved to state with score {best_score}")
         end_time = time.time()
-<<<<<<< HEAD
-        print(f'Game {game_id} ended! Turns: {game_state.turns}')
-        self.saveWeights()
-=======
         if debug:
             print(f"Game {game_id} ended with {game_state.has_player_won()}!"
                   f" Turns: {game_state.turns}, Time: {end_time-start_time}s")
         return game_state.has_player_won(), game_state.turns
         # self.save_weights()
->>>>>>> de62198b2953e72bc2e22cdc1c694743fcd4ff14
 
     def run_epoch(self, length, debug=False):
+        turns_per_game = []
         for i in trange(length, desc='Training...', unit='game', dynamic_ncols=True, smoothing=0):
+            if i % 100 == 0 and i != 0:
+                total = len(turns_per_game)
+                avg = sum(turns_per_game) / total
+                print(f"Games {i-100} to {i} ended with {total} wins in avg of {avg} turns per game.")
+                self.save_weights()
+                turns_per_game = []
             g = GameState(["Michael"])
             result = self.run_game(g, i, debug)
-            if i % 100 == 0:
-                print(f"Game {i} ended with {result[0]} in {result[1]} turns.")
+            if (result[0]):
+                turns_per_game.append(result[1])
         print("End of epoch")
