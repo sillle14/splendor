@@ -4,7 +4,6 @@
 .vscode
 .core/__pycache__
 .GUI/__pycache__
-network.py
 networkTD.py
 .DS_Store
 core/.DS_Store

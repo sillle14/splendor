@@ -1,6 +1,8 @@
+from __future__ import annotations
+
 import random
 from copy import deepcopy
-from typing import List, Dict
+from typing import List, Dict, Optional, Tuple
 
 import numpy as np
 
@@ -61,7 +63,7 @@ class GameState(object):
         representation += str(len(self.to_array()))
         return representation
 
-    def copy(self):
+    def copy(self) -> GameState:
         """Copies the GameState in a safe way without duplicating everything."""
         new_state = GameState()
 
@@ -85,7 +87,7 @@ class GameState(object):
 
         return new_state
 
-    def get_possible_moves(self):
+    def get_possible_moves(self) -> Tuple[List[GameState], Dict[str, List[any]]]:
         """
         Gets all the moves that can be performed from this game state, as well as the resulting states.
 
@@ -113,7 +115,6 @@ class GameState(object):
                         moves['take'].append(gems)
                     except InvalidMoveError:
                         pass
-
 
         # Find all possible 2 gem draws.
         for gem in Gem:
@@ -145,8 +146,8 @@ class GameState(object):
 
         return states, moves
 
-    def to_array(self):
-        """Converts the GameState into an array which can be read by the NN. (111 Nodes)"""
+    def to_array(self) -> np.array:
+        """Converts the GameState into an array which can be read by the NN. (100 Nodes)"""
         # Nodes for the GameState gems:
         game_state_gems = self.gems.to_list()
 
@@ -160,7 +161,8 @@ class GameState(object):
         # Flatten.
         players = [item for sublist in players for item in sublist]
 
-        return np.array(game_state_gems + game_state_cards + players)
+        # Return as a column vector.
+        return np.array(game_state_gems + game_state_cards + players, ndmin=2).T
 
     # ===========
     #    MOVES
@@ -227,7 +229,8 @@ class GameState(object):
         try:
             self.display.append(self.deck[f"TIER_{card.tier}"].pop())
         except IndexError:
-            print(f"Ran out of cards to draw in Tier{card.tier}")
+            pass
+            # print(f"Ran out of cards to draw in Tier{card.tier}")
         self.display.sort()
 
     def next_player(self):
@@ -238,7 +241,7 @@ class GameState(object):
         if self.cur_player_idx == 0:
             self.turns += 1
 
-    def is_game_over(self):
+    def is_game_over(self) -> bool:
         """Checks for player score, cards in deck, and number of turns."""
         for player in self.players:
             if player.points >= 15 and self.cur_player_idx == 0:
@@ -251,7 +254,7 @@ class GameState(object):
             return True
         return False
 
-    def has_player_won(self):
+    def has_player_won(self) -> Optional[int]:
         """Checks if the player has won in the one player case."""
         if self.is_game_over():
             if len(self.display) < 12:
@@ -261,11 +264,11 @@ class GameState(object):
             return 1
         return None
 
-    def get_winner(self):
+    def get_winner(self) -> Player:
         if self.is_game_over() and self.has_player_won():
             return self.players.sort(key=lambda x: x.points, reverse=True)[0]
 
-    def get_reward(self):
+    def get_reward(self) -> int:
         if self.is_game_over():
             return 100
             # if self.get_winner() == self.cur_player:
