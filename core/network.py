@@ -1,10 +1,13 @@
 import pickle
+import random
 import time
+from typing import Tuple
 
 import numpy as np
 from tqdm import trange
 
 from core.game_state import GameState
+
 
 def sigmoid(x):
     # To avoid overflow.
@@ -31,8 +34,6 @@ class Weights(object):
     hidden_node_count = 50  # m
 
     def __init__(self):
-        np.random.seed(1)
-
         self.W1 = 2 * np.random.random((self.hidden_node_count, self.input_node_count)) - 1  # m x n
         self.bias_1 = 2 * np.random.random((self.hidden_node_count, 1)) - 1  # m x 1
 
@@ -48,12 +49,15 @@ class Network(object):
             self.save_weights()
         else:
             self.weights = self.load_weights()
-        self.alpha = 2**(-(np.random.random()*4+1))
         self.lambda_ = 0.9
         self.e_t_b2_previous = np.zeros((1, 1))  # 1 x 1
         self.e_t_W2_previous = np.zeros((1, self.weights.hidden_node_count))  # 1 x m
         self.e_t_b1_previous = np.zeros((self.weights.hidden_node_count, 1))  # m x 1
         self.e_t_W1_previous = np.zeros((self.weights.hidden_node_count, self.weights.input_node_count))  # m x n
+
+    @staticmethod
+    def alpha():
+        return 10**(-random.randint(1, 3))
 
     def save_weights(self):
         with open("weights.pickle", "wb") as f:
@@ -75,6 +79,8 @@ class Network(object):
         return output[0][0]
 
     def back_propagate(self, current_input: np.array, next_score: float):
+
+        alpha = self.alpha()
 
         # z_k is the pre sigmoid output of each layer.
         # v_k is the output of the kth layer.
@@ -106,12 +112,12 @@ class Network(object):
         delta_t = next_score - current_score
 
         # Update weights.
-        self.weights.bias_2 = self.weights.bias_2 + self.alpha * delta_t * e_t_b2
-        self.weights.W2 = self.weights.W2 + self.alpha * delta_t * e_t_W2
-        self.weights.bias_1 = self.weights.bias_1 + self.alpha * delta_t * e_t_b1
-        self.weights.W1 = self.weights.W1 + self.alpha * delta_t * e_t_W1
+        self.weights.bias_2 = self.weights.bias_2 + alpha * delta_t * e_t_b2
+        self.weights.W2 = self.weights.W2 + alpha * delta_t * e_t_W2
+        self.weights.bias_1 = self.weights.bias_1 + alpha * delta_t * e_t_b1
+        self.weights.W1 = self.weights.W1 + alpha * delta_t * e_t_W1
 
-    def take_turn(self, game_state: GameState) -> GameState:
+    def take_turn(self, game_state: GameState) -> Tuple[GameState, int]:
         # First, we need to calculate the outcome of the next game states.
         possible_next_states, _ = game_state.get_possible_moves()
         next_scores = {self.feed_forward(state.to_1P_array()): state for state in possible_next_states}
@@ -149,6 +155,6 @@ class Network(object):
                 turns_per_game = []
             g = GameState(["Michael"])
             result = self.run_game(g, i, debug)
-            if (result[0]):
+            if result[0]:
                 turns_per_game.append(result[1])
         print("End of epoch")

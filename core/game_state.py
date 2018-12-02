@@ -12,6 +12,7 @@ from core.static import CARDS
 
 GEM_COUNT = 4
 MAX_GEM_HAND_SIZE = 20
+WINNING_SCORE = 12
 
 
 class InvalidMoveError(Exception):
@@ -262,7 +263,7 @@ class GameState(object):
     def is_game_over(self) -> bool:
         """Checks for player score, cards in deck, and number of turns."""
         for player in self.players:
-            if player.points >= 15 and self.cur_player_idx == 0:
+            if player.points >= WINNING_SCORE and self.cur_player_idx == 0:
                 return True
         # If cards ran out in a pile, we call the game over for now. TODO
         if len(self.display) < 12:

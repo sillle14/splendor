@@ -53,4 +53,4 @@ class Player(object):
 
     def to_list(self):
         """Returns a list of integers to be read by the NN."""
-        return self.tableau.to_list() + self.gems.to_list() + [self.points]
+        return self.tableau.to_list() + self.gems.to_list() + [self.points / 12]
