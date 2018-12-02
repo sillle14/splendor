@@ -1,10 +1,10 @@
 from core.network import Network
 from core.game_state import GameState
-
+from GUI.GUI import run
 # print("hello")
-n = Network()
+# n = Network()
 
-g1 = GameState(["Michael"])
+# n.run_epoch(1000)
 
-n.run_epoch(1000)
 
+run(["Michael"])

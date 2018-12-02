@@ -2,6 +2,7 @@
 import random
 
 from core.game_state import GameState
+from core.network import Network
 from tkinter import *
 from GUI.widgets import *
 from GUI.game_pieces import *
@@ -17,12 +18,11 @@ sys.path.append('..')
 
 def init(data, names):
     # load data.xyz as appropriate
-    update_game(data, GameState(names))
+    data.game = GameState(names)
     data.controller = Controller()
+    data.network = Network()
 
-
-def update_game(data, game_state):
-    data.game = game_state
+    data.game_list = [data.game]
 
 
 def mouse_pressed(event, data):
@@ -41,19 +41,21 @@ def mouse_pressed(event, data):
     # confirm
     if data.controller.confirmed(event.x, event.y):
         data.controller.take_turn(data.game)  # modifies data.game
+        data.game_list.append(data.game)
+
+
+
 
 
 def key_pressed(event, data):
     # use event.char and event.keysym
-    if event.keysym == "n":
-        newstates = data.game.get_possible_moves()[0]
-        random.shuffle(newstates)
-        newstate = newstates[0]
-        update_game(data, newstate)
-        print(data.game)
-    if event.keysym == " ":
-        data.controller.take_turn(data.game)  # modifies data.game
-
+    if event.keysym == "a":
+        # a.i.
+        data.game, _ = data.network.take_turn(data.game)
+        data.game_list.append(data.game)
+    if event.keysym == "u":
+        # undo
+        data.game = data.game_list.pop()
 
 def timer_fired(data):
     pass

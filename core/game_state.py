@@ -164,6 +164,24 @@ class GameState(object):
         # Return as a column vector.
         return np.array(game_state_gems + game_state_cards + players, ndmin=2).T
 
+    def to_1P_array(self) -> np.array:
+        """Only for 1 player (doesn't include other players' hands"""
+        # Nodes for the GameState gems:
+        game_state_gems = self.gems.to_list()
+
+        # Nodes for the GameState display cards:
+        game_state_cards = [card.to_list() for card in self.display]  # List of lists
+        # Flatten.
+        game_state_cards = [item for sublist in game_state_cards for item in sublist]
+
+        # Nodes for each player:
+        players = [self.cur_player.to_list()]  # List of lists
+        # Flatten.
+        players = [item for sublist in players for item in sublist]
+
+        # Return as a column vector.
+        return np.array(game_state_gems + game_state_cards + players, ndmin=2).T
+
     # ===========
     #    MOVES
     # ===========
@@ -197,7 +215,7 @@ class GameState(object):
         # Check that it is allowed to take the given gems.
         if player.gems.total() + gems.total() > MAX_GEM_HAND_SIZE:
             raise InvalidMoveError('These gems will violate the handsize limit.')
-        if gems.total() == 2 and len(gems.distinct_gems()) == 2:
+        if gems.total() == 2 and len(gems.distinct_gems()) == 1:
             if self.gems.amount(gems.distinct_gems()[0]) < 4:
                 raise InvalidMoveError("Can't take 2 gems when there are less than 4 left in the supply.")
         elif gems.total() == 3:

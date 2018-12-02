@@ -48,8 +48,8 @@ class Network(object):
             self.save_weights()
         else:
             self.weights = self.load_weights()
-        self.alpha = 0.5
-        self.lambda_ = 0.7
+        self.alpha = 2**(-(np.random.random()*4+1))
+        self.lambda_ = 0.9
         self.e_t_b2_previous = np.zeros((1, 1))  # 1 x 1
         self.e_t_W2_previous = np.zeros((1, self.weights.hidden_node_count))  # 1 x m
         self.e_t_b1_previous = np.zeros((self.weights.hidden_node_count, 1))  # m x 1
@@ -111,17 +111,21 @@ class Network(object):
         self.weights.bias_1 = self.weights.bias_1 + self.alpha * delta_t * e_t_b1
         self.weights.W1 = self.weights.W1 + self.alpha * delta_t * e_t_W1
 
+    def take_turn(self, game_state: GameState) -> GameState:
+        # First, we need to calculate the outcome of the next game states.
+        possible_next_states, _ = game_state.get_possible_moves()
+        next_scores = {self.feed_forward(state.to_1P_array()): state for state in possible_next_states}
+
+        best_score = max(next_scores)
+        next_score = best_score if (game_state.has_player_won() is None) else game_state.has_player_won()
+        next_state = next_scores.get(best_score).copy()
+        return next_state, next_score
+
     def run_game(self, game_state: GameState, game_id, debug=False):
         start_time = time.time()
         while not game_state.is_game_over():
 
-            # First, we need to calculate the outcome of the next game states.
-            possible_next_states, _ = game_state.get_possible_moves()
-            next_scores = {self.feed_forward(state.to_array()): state for state in possible_next_states}
-
-            best_score = max(next_scores)
-            next_score = best_score if (game_state.has_player_won() is None) else game_state.has_player_won()
-            next_state = next_scores.get(best_score).copy()
+            next_state, next_score = self.take_turn(game_state)
             # Back propagate for new weights.
             self.back_propagate(game_state.to_array(), next_score)
             game_state = next_state
